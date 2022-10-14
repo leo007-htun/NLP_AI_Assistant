@@ -54,12 +54,14 @@ def custom_strftime(format, t):
 
 
 def take_command():
+    global listener
     while True:
         try:
             with sr.Microphone() as source:
                 print('listening ...')
-                listener.pause_threshold = 1
-                listener.adjust_for_ambient_noise(source)
+                # listener.pause_threshold = 1
+                # listener.adjust_for_ambient_noise(source)
+                listener.adjust_for_ambient_noise(source, duration=0.2)
                 voice = listener.listen(source)
                 command = listener.recognize_google(voice)
                 # command = listener.recognize_google(voice, language='en-gb', show_all=True)
@@ -69,8 +71,11 @@ def take_command():
                     command = command.replace('jarvis', '')
                     # json.dumps(sFinalResult, ensure_ascii=False).encode('utf8')
                     print(command)
-        except ValueError:
-            pass
+
+        except sr.UnknownValueError:
+            listener = sr.Recognizer()  # reinitialize
+            engine.say("I do not understand")
+            engine.runAndWait()
         else:
             # return command
             break
